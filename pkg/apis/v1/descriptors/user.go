@@ -1,36 +1,34 @@
 package descriptors
 
 import (
-	def "github.com/caicloud/nirvana/definition"
 	"github.com/wangkailiang-caiyun/Nirvana-Testing/pkg/user"
+
+	def "github.com/caicloud/nirvana/definition"
 )
 
 func init() {
 	register(
 		[]def.Descriptor{
 			{
-				Path:        "/users",
-				Definitions: []def.Definition{fetchUserListDef},
-			},
-			{
-				Path: "/user",
+				Path: "/users",
 				Definitions: []def.Definition{
-					createUserDef,
-					updateUserDef,
+					getUserList,
+					createUser,
 				},
 			},
 			{
 				Path: "/user/{userID}",
 				Definitions: []def.Definition{
-					fetchUserDef,
-					deleteUserDef,
+					getUser,
+					deleteUser,
+					updateUser,
 				},
 			},
 		}...,
 	)
 }
 
-var createUserDef = def.Definition{
+var createUser = def.Definition{
 	Method:      def.Create,
 	Summary:     "create User information",
 	Description: "create user information",
@@ -46,10 +44,10 @@ var createUserDef = def.Definition{
 	Results: def.DataErrorResults("success flag"),
 }
 
-var deleteUserDef = def.Definition{
+var deleteUser = def.Definition{
 	Method:      def.Delete,
 	Summary:     "delete a User",
-	Description: "delete user from mongoDB",
+	Description: "delete user",
 	Function:    user.DeleteUser,
 	Parameters: []def.Parameter{
 		def.PathParameterFor("userID", "user Id"),
@@ -57,12 +55,13 @@ var deleteUserDef = def.Definition{
 	Results: def.DataErrorResults("success flag"),
 }
 
-var updateUserDef = def.Definition{
+var updateUser = def.Definition{
 	Method:      def.Update,
 	Summary:     "update User information",
 	Description: "update user information",
 	Function:    user.UpdateUser,
 	Parameters: []def.Parameter{
+		def.PathParameterFor("userID", "user Id"),
 		{
 			Source:      def.Body,
 			Name:        "user",
@@ -73,11 +72,11 @@ var updateUserDef = def.Definition{
 	Results: def.DataErrorResults("success flag"),
 }
 
-var fetchUserListDef = def.Definition{
+var getUserList = def.Definition{
 	Method:      def.List,
 	Summary:     "Get All User",
 	Description: "fetch all user from mongoDB",
-	Function:    user.FetchUserList,
+	Function:    user.GetUserList,
 	Parameters: []def.Parameter{
 		{
 			Source:      def.Query,
@@ -95,7 +94,7 @@ var fetchUserListDef = def.Definition{
 	Results: def.DataErrorResults("a list of user"),
 }
 
-var fetchUserDef = def.Definition{
+var getUser = def.Definition{
 	Method:      def.Get,
 	Summary:     "get one User information",
 	Description: "get one User information",
