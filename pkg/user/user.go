@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/wangkailiang-caiyun/Nirvana-Testing/pkg/mgo"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -19,14 +19,8 @@ type User struct {
 	LastModify int64  `json:"last_modify" bson:"last_modify"`
 }
 
-// FetchUserList 获取用户列表
-func FetchUserList(ctx context.Context, pageSize, pageNo int) ([]User, error) {
-	if pageNo == 0 {
-		pageNo = 1
-	}
-	if pageSize == 0 {
-		pageSize = 10
-	}
+// GetUserList 获取用户列表
+func GetUserList(ctx context.Context, pageSize, pageNo int) ([]User, error) {
 	var offset int64 = int64(pageNo-1) * int64(pageSize)
 
 	limit := int64(pageSize)
@@ -74,9 +68,9 @@ func CreateUser(ctx context.Context, user User) (*User, error) {
 }
 
 //UpdateUser 更新用户信息
-func UpdateUser(ctx context.Context, user User) (bool, error) {
+func UpdateUser(ctx context.Context, userID string, user User) (bool, error) {
 	userTable := mgo.Mongo.Database("testing").Collection("user")
-	ID, _ := primitive.ObjectIDFromHex(user.ID)
+	ID, _ := primitive.ObjectIDFromHex(userID)
 	b := bson.M{"$set": bson.M{"user_name": user.UserName, "password": user.Password, "create_at": user.CreateAt, "last_modify": user.LastModify}}
 	result, err := userTable.UpdateOne(context.Background(), bson.M{"_id": ID}, b)
 	if err != nil {
