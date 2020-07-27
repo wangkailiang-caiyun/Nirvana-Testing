@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 
+	"github.com/caicloud/nirvana/log"
 	"github.com/wangkailiang-caiyun/Nirvana-Testing/pkg/mgo"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,11 +13,18 @@ import (
 
 //User 用户基础信息
 type User struct {
-	ID         string `json:"id" bson:"_id"`
-	UserName   string `json:"user_name" bson:"user_name"`
-	Password   string `json:"password" bson:"password"`
-	CreateAt   int64  `json:"create_at" bson:"create_at"`
-	LastModify int64  `json:"last_modify" bson:"last_modify"`
+	ID         string   `json:"id" bson:"_id"`
+	UserName   string   `json:"user_name" bson:"user_name"`
+	Password   string   `json:"password" bson:"password"`
+	CreateAt   int64    `json:"create_at" bson:"create_at"`
+	LastModify int64    `json:"last_modify" bson:"last_modify"`
+	Address    []string `json:"address" bson:"address"`
+}
+
+//AddressRequest push address request
+type AddressRequest struct {
+	UserID  string `json:"user_id" `
+	Address string `json:"address"`
 }
 
 // GetUserList 获取用户列表
@@ -88,4 +96,36 @@ func DeleteUser(ctx context.Context, userID string) (bool, error) {
 		return false, err
 	}
 	return result.DeletedCount == 1, nil
+}
+
+//AddUserAddress 添加用户地址
+func AddUserAddress(ctx context.Context, addRequest AddressRequest) (bool, error) {
+	userTable := mgo.Mongo.Database("testing").Collection("user")
+	objID, _ := primitive.ObjectIDFromHex(addRequest.UserID)
+
+	b := bson.M{
+		"$push": bson.M{"address": addRequest.Address},
+	}
+	result, err := userTable.UpdateOne(context.Background(), bson.M{"_id": objID}, b)
+	if err != nil {
+		return false, err
+	}
+	log.Infof("userID : %s Address : %s \n", addRequest.UserID, addRequest.Address)
+	return result.ModifiedCount == 1, nil
+}
+
+//RemoveUserAddress 删除用户地址
+func RemoveUserAddress(ctx context.Context, addRequest AddressRequest) (bool, error) {
+	userTable := mgo.Mongo.Database("testing").Collection("user")
+	objID, _ := primitive.ObjectIDFromHex(addRequest.UserID)
+
+	b := bson.M{
+		"$pull": bson.M{"address": addRequest.Address},
+	}
+	result, err := userTable.UpdateOne(context.Background(), bson.M{"_id": objID}, b)
+	if err != nil {
+		return false, err
+	}
+	log.Infof("userID : %s Address : %s \n", addRequest.UserID, addRequest.Address)
+	return result.ModifiedCount == 1, nil
 }

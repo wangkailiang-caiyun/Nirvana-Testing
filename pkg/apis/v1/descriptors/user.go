@@ -24,6 +24,18 @@ func init() {
 					updateUser,
 				},
 			},
+			{
+				Path: "/user/address/add",
+				Definitions: []def.Definition{
+					addUserAddress,
+				},
+			},
+			{
+				Path: "/user/address/delete",
+				Definitions: []def.Definition{
+					deleteUserAddress,
+				},
+			},
 		}...,
 	)
 }
@@ -55,6 +67,37 @@ var deleteUser = def.Definition{
 	Results: def.DataErrorResults("success flag"),
 }
 
+var addUserAddress = def.Definition{
+	Method:      def.Create,
+	Summary:     "add a User Address",
+	Description: "add a User Address",
+	Function:    user.AddUserAddress,
+	Parameters: []def.Parameter{
+		{
+			Source:      def.Body,
+			Name:        "addressRequest",
+			Default:     nil,
+			Description: "push address request",
+		},
+	},
+	Results: def.DataErrorResults("success flag"),
+}
+
+var deleteUserAddress = def.Definition{
+	Method:      def.Create,
+	Summary:     "add a User Address",
+	Description: "add a User Address",
+	Function:    user.RemoveUserAddress,
+	Parameters: []def.Parameter{
+		{
+			Source:      def.Body,
+			Name:        "addressRequest",
+			Default:     nil,
+			Description: "push address request",
+		},
+	},
+	Results: def.DataErrorResults("success flag"),
+}
 var updateUser = def.Definition{
 	Method:      def.Update,
 	Summary:     "update User information",
